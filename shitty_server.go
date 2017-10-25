@@ -16,7 +16,7 @@ const(
 func main() {
 	// Flag config
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "use: %s [-p port]", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "use: %s [-p port] [-d root_directory]\n", filepath.Base(os.Args[0]))
 		flag.PrintDefaults()
 	}
 	
@@ -24,8 +24,8 @@ func main() {
 	var root_dir = flag.String("d", ".", "`root directory` to serve from")
 	
 	flag.Parse()
-	// Main
 	
+	// Main
 	
 	http.Handle("/", http.FileServer(http.Dir(*root_dir)))
 	log.Printf("Server running on port %d\n", *port)
