@@ -28,7 +28,13 @@ func main() {
 	// Main
 	
 	http.Handle("/", http.FileServer(http.Dir(*root_dir)))
-	log.Printf("Server running on port %d\n", *port)
+	
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal("getting hostname: %v\n", err)
+	}
+	host_url := fmt.Sprintf("http://%s:%d", hostname, *port)
+	log.Printf("Server running on %s\n", host_url)
 	
 	log.Fatal(http.ListenAndServe( fmt.Sprintf(":%d", *port), nil ))
 }
