@@ -13,6 +13,9 @@ import(
 
 const(
 	DEFAULT_HTTP_SERVER_PORT int = 8080
+
+	HOSTNAME_ERROR_MESSAGE string = "HOSTNAME_ERROR"
+	LOCALIP_ERROR_MESSAGE string = "LOCALIP_ERROR"
 )
 
 func main() {
@@ -33,13 +36,16 @@ func main() {
 
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Fatal("getting hostname: %v\n", err)
+		log.Printf("getting hostname: %v\n", err)
+		hostname = HOSTNAME_ERROR_MESSAGE
 	}
 	host_url := fmt.Sprintf("http://%s:%d", hostname, *port)
 
 	localIP, err := getLocalIP()
 	if err != nil {
-		log.Fatal("getting local IP: %v\n", err)
+		log.Printf("getting local IP: %v\n", err)
+
+		localIP = LOCALIP_ERROR_MESSAGE
 	}
 
 
