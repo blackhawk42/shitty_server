@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	// Default port to bind the HTTP server to.
 	DEFAULT_HTTP_SERVER_PORT int = 8080
 
 	HOSTNAME_ERROR_MESSAGE string = "HOSTNAME_ERROR"
@@ -26,20 +27,20 @@ func main() {
 	}
 
 	var port = flag.Int("p", DEFAULT_HTTP_SERVER_PORT, "`port` to be used for HTTP server")
-	var root_dir = flag.String("d", ".", "`root directory` to serve from")
+	var rootDir = flag.String("d", ".", "`root directory` to serve from")
 
 	flag.Parse()
 
 	// Main
 
-	http.Handle("/", http.FileServer(http.Dir(*root_dir)))
+	http.Handle("/", http.FileServer(http.Dir(*rootDir)))
 
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Printf("getting hostname: %v\n", err)
 		hostname = HOSTNAME_ERROR_MESSAGE
 	}
-	host_url := fmt.Sprintf("http://%s:%d", hostname, *port)
+	hostURL := fmt.Sprintf("http://%s:%d", hostname, *port)
 
 	localIP, err := externalIP()
 	if err != nil {
@@ -48,7 +49,7 @@ func main() {
 		localIP = LOCALIP_ERROR_MESSAGE
 	}
 
-	log.Printf("Server running on %s (%s)\n", host_url, localIP)
+	log.Printf("Server running on %s (%s)\n", hostURL, localIP)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
