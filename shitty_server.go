@@ -45,11 +45,10 @@ func main() {
 	localIP, err := externalIP()
 	if err != nil {
 		log.Printf("getting local IP: %v\n", err)
-
-		localIP = LOCALIP_ERROR_MESSAGE
 	}
+	hostIPURL := fmt.Sprintf("http://%s:%d", localIP, *port)
 
-	log.Printf("Server running on %s (%s)\n", hostURL, localIP)
+	log.Printf("Server running on %s (%s)\n", hostURL, hostIPURL)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
@@ -61,7 +60,7 @@ func main() {
 func externalIP() (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		return "", err
+		return LOCALIP_ERROR_MESSAGE, err
 	}
 
 	for _, iface := range ifaces {
@@ -75,7 +74,7 @@ func externalIP() (string, error) {
 
 		addrs, err := iface.Addrs()
 		if err != nil {
-			return "", err
+			return LOCALIP_ERROR_MESSAGE, err
 		}
 
 		for _, addr := range addrs {
@@ -99,5 +98,5 @@ func externalIP() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("No suitable ip address found, possible lack of network connection")
+	return "127.0.0.1", fmt.Errorf("No suitable ip address found, possible lack of network connection; returning standard loopback address")
 }
