@@ -1,11 +1,13 @@
 package main
 
 import (
+	"archive/zip"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"net"
 	"net/http"
@@ -27,13 +29,36 @@ func main() {
 	}
 
 	var port = flag.Int("p", DEFAULT_HTTP_SERVER_PORT, "`port` to be used for HTTP server")
-	var rootDir = flag.String("d", ".", "`root directory` to serve from")
+	var rootDir = flag.String("d", ".", "`root directory` to serve from; can also be a zip file with the appropiate \".zip\" suffix")
 
 	flag.Parse()
 
 	// Main
 
-	http.Handle("/", http.FileServer(http.Dir(*rootDir)))
+	// Check if rootDir exists
+	rootDirInfo, err := os.Stat(*rootDir)
+	if os.IsNotExist(err) {
+		log.Fatal(err)
+	}
+
+	// Create the apropiate handler if it's a directory or a zip file
+	var handler http.Handler
+	if rootDirInfo.IsDir() {
+		handler = http.FileServer(http.Dir(*rootDir))
+
+	} else if strings.HasSuffix(*rootDir, ".zip") {
+		zipReader, err := zip.OpenReader(*rootDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		handler = http.FileServer(http.FS(zipReader))
+
+	} else {
+		log.Fatalf("%s is not a valid path for a root directory", *rootDir)
+	}
+
+	http.Handle("/", handler)
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -98,5 +123,5 @@ func externalIP() (string, error) {
 		}
 	}
 
-	return "127.0.0.1", fmt.Errorf("No suitable ip address found, possible lack of network connection; returning standard loopback address")
+	return "127.0.0.1", fmt.Errorf("no suitable ip address found, possible lack of network connection; returning standard loopback address")
 }
